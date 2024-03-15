@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Body } from "./Body";
+import { fetchSatelliteData } from "./queries";
+import { initWebSocket } from "./webSocket";
 
 // Create a scene
 const scene = new THREE.Scene();
@@ -34,6 +36,22 @@ const satellite = new Body(
   new THREE.Color(THREE.Color.NAMES.yellowgreen)
 );
 scene.add(satellite.mesh);
+
+const socket = initWebSocket();
+
+const button = document.createElement("button");
+button.style.position = "absolute";
+button.style.top = "20px";
+button.style.left = "20px";
+button.textContent = "Click Me!";
+button.addEventListener("click", () => {
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send("hello from the client!");
+  } else {
+    console.log("WebSocket connection is not open. Message not sent.");
+  }
+});
+document.body.append(button);
 
 // Create orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);

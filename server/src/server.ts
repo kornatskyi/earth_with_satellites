@@ -2,6 +2,8 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import path from "path";
 import axios from "axios";
+import WebSocket from "ws";
+import http from "http";
 
 interface SatelliteData {
   name: string;
@@ -20,10 +22,38 @@ interface SatelliteData {
 }
 
 const app = express();
+const server = http.createServer(app);
 const port = process.env.PORT || 3000;
 
+const wss = new WebSocket.Server({ server });
+
+wss.on("connection", (ws: WebSocket) => {
+  console.log("WebSocket client connected");
+
+  ws.on("message", (message: Buffer) => {
+    const messageString = message.toString();
+    console.log("Received message:", messageString);
+    // Handle incoming messages from the client
+  });
+
+  ws.on("close", () => {
+    console.log("WebSocket client disconnected");
+  });
+});
+
 // Enable CORS for all routes
-app.use(cors());
+// app.use(cors());
+
+// Enable CORS
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 
 // Serve static files from the client's dist directory
 app.use(
@@ -53,6 +83,10 @@ app.get("/api/iss", (req: Request, res: Response) => {
     solar_lon: 135.00268461768,
     units: "kilometers",
   };
+
+  wss.clients.forEach((client) => {
+    client.send("Hello from the server!");
+  });
   res.json(issMockData);
 });
 
@@ -69,6 +103,6 @@ app.get("/api/satellites", (req: Request, res: Response) => {
 });
 
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
