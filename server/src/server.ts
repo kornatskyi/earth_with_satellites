@@ -4,9 +4,8 @@ import path from "path";
 import axios from "axios";
 import WebSocket from "ws";
 import http from "http";
-import { updateSatellites } from "./satellites";
 import routes from "./routes/routes";
-import { setupChatSocket } from "./sockets/mainSocket";
+import { setupSockets } from "./sockets/mainSocket";
 
 const app = express();
 const server = http.createServer(app);
@@ -14,7 +13,7 @@ const port = process.env.PORT || 3000;
 
 const wss = new WebSocket.Server({ server });
 
-setupChatSocket(wss);
+setupSockets(wss);
 
 // Enable CORS for all routes
 app.use(cors());

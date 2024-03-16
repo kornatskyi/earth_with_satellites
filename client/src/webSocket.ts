@@ -8,10 +8,10 @@ export const initWebSocket = (): WebSocket => {
   });
 
   // Listen for messages
-  socket.addEventListener("message", (event) => {
-    console.log("Received message:", event.data);
-    // Handle incoming messages from the server
-  });
+  // socket.addEventListener("message", (event) => {
+  //   console.log("Received message:", event.data);
+  //   // Handle incoming messages from the server
+  // });
 
   // Connection closed
   socket.addEventListener("close", (event) => {

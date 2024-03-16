@@ -3,7 +3,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Body } from "./Body";
 import { fetchSatelliteData } from "./queries";
 import { initWebSocket } from "./webSocket";
+import mapImage from "../public/images/map.jpg";
 
+const socket = initWebSocket();
+
+const EARTH_ACTUAL_RADIUS = 6371;
 // Create a scene
 const scene = new THREE.Scene();
 
@@ -14,7 +18,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.z = 20;
+camera.position.x = 100;
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer();
@@ -22,44 +26,52 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Create a spheres
-const earth = new Body(
-  10,
-  new THREE.Vector3(0, 0, 0),
-  new THREE.Color(THREE.Color.NAMES.aqua)
-);
+const earthRadius = 50;
+const earth = new Body(earthRadius, new THREE.Vector3(0, 0, 0), mapImage);
 scene.add(earth.mesh);
 console.log(earth.position);
 
 const satellite = new Body(
   1,
   new THREE.Vector3(11, 11, 0),
-  new THREE.Color(THREE.Color.NAMES.yellowgreen)
+  null,
+  new THREE.Color(THREE.Color.NAMES.chocolate)
 );
-scene.add(satellite.mesh);
+satellite.updatePositionFromAngularPosition(
+  0,
+  0,
+  0 * (earthRadius / EARTH_ACTUAL_RADIUS), // scale altitude
+  earthRadius
+);
+socket.addEventListener("message", (event) => {
+  const parsed = JSON.parse(event.data);
+  console.log(parsed);
+  
 
-const socket = initWebSocket();
-
-const button = document.createElement("button");
-button.style.position = "absolute";
-button.style.top = "20px";
-button.style.left = "20px";
-button.textContent = "Click Me!";
-button.addEventListener("click", () => {
-  if (socket.readyState === WebSocket.OPEN) {
-    socket.send("hello from the client!");
-  } else {
-    console.log("WebSocket connection is not open. Message not sent.");
+  if (
+    parsed.latitude !== undefined &&
+    parsed.longitude !== undefined &&
+    parsed.altitude !== undefined
+  ) {
+    satellite.updatePositionFromAngularPosition(
+      parsed.latitude,
+      parsed.longitude,
+      parsed.altitude * (earthRadius / EARTH_ACTUAL_RADIUS), // scale altitude
+      earthRadius
+    );
   }
 });
-document.body.append(button);
+
+scene.add(satellite.mesh);
 
 // Create orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
+controls.rotateSpeed = 0.3;
+// controls.enableDamping = true;
+// controls.dampingFactor = 0.05;
 controls.screenSpacePanning = false;
 controls.minDistance = 1;
-controls.maxDistance = 100;
+controls.maxDistance = 500;
 
 // Animation loop
 function animate() {
