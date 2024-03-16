@@ -10,6 +10,8 @@ The project consists of two main components:
 
 2. **Backend**: The backend is implemented using Node.js and Express.js. It serves as the server-side component, handling WebSocket connections and sending real-time updates about the positions of the satellites to the frontend.
 
+<img alt="Screen Shot" src="screenshot.png" width=500px />
+
 ## Installation
 
 To run the "Earth with Satellites" project locally, follow these steps:
@@ -59,5 +61,3 @@ To run the "Earth with Satellites" project locally, follow these steps:
 - WebSockets
 
 ---
-
-![Screen Shot](screenshot.png)
