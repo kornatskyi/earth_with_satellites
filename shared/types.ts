@@ -1,11 +1,11 @@
-export interface MyVector3 {
+export interface MyVector3Type {
   x: number;
   y: number;
   z: number;
 }
 
-export interface SpaceBody {
-  position: MyVector3;
-  velocity: MyVector3;
+export interface SpaceBodyType {
+  position: MyVector3Type;
+  velocity: MyVector3Type;
   name: string;
 }
